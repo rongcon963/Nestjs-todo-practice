@@ -9,7 +9,12 @@ export class TodoController {
 
   @Post()
   async create(@Body() createTodoDto: CreateTodoDto) {
-    this.todoService.create(createTodoDto);
+    return this.todoService.create(createTodoDto);
+  }
+
+  @Get(':id')
+  async findTodoById(id: number): Promise<Todo>{
+    return this.todoService.findOne(id);
   }
 
   @Get()

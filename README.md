@@ -43,6 +43,9 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+
+# migration
+$ npm run migration:generate -- src/migrations/{db_name}
 ```
 
 ## Test
