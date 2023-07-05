@@ -1,4 +1,4 @@
-export class CreateTodoDto {
+export class UpdateTodoDto {
     name: string;
     description: string;
 }

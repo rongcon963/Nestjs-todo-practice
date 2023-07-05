@@ -3,6 +3,7 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './entities/todo.entity';
 import { Repository } from 'typeorm';
+import { UpdateTodoDto } from './dto/update-todo.dto';
 
 @Injectable()
 export class TodoService {
@@ -13,21 +14,41 @@ export class TodoService {
     private todoRepository: Repository<Todo>,
   ) {}
 
-  create(todo: CreateTodoDto) {
+  async create(todo: CreateTodoDto) {
     if(!todo.name) {
-      throw new HttpException('Field name is not empty!', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Field name is not empty!', HttpStatus.BAD_REQUEST);
     }
 
-    const result = this.todoRepository.create(todo);
+    const result = await this.todoRepository.create(todo);
 
-    return this.todoRepository.save(result);
+    return await this.todoRepository.save(result);
   }
 
-  findOne(id: number): Promise<Todo | null> {
-    return this.todoRepository.findOneBy({ id });
+  async update(id: number, todo: UpdateTodoDto) {
+    const todos = await this.todoRepository.findOneBy({ id });
+    if (!todos) {
+      throw new HttpException(`Todo doesn't exist`, HttpStatus.BAD_REQUEST);
+    }
+    return await this.todoRepository.update({id}, todo);
   }
 
-  findAll(): Promise<Todo[]> {
-    return this.todoRepository.find();
+  async delete(id: number) {
+    const todos = await this.todoRepository.findOneBy({ id });
+    if (!todos) {
+      throw new HttpException(`Todo doesn't exist`, HttpStatus.BAD_REQUEST);
+    }
+    return await this.todoRepository.delete({ id }); 
+  }
+
+  async findOne(id: number): Promise<Todo | null> {
+    const todo =  await this.todoRepository.findOneBy({ id });
+    if (!todo) {
+      throw new HttpException(`Todo doesn't exist`, HttpStatus.BAD_REQUEST);
+    }
+    return todo;
+  }
+
+  async findAll(): Promise<Todo[]> {
+    return await this.todoRepository.find();
   }
 }
