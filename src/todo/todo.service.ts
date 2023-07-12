@@ -2,8 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './entities/todo.entity';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import * as moment from 'moment-timezone';
 
 @Injectable()
 export class TodoService {
@@ -19,14 +20,15 @@ export class TodoService {
       throw new HttpException('Field name is not empty!', HttpStatus.BAD_REQUEST);
     }
 
-    const result = await this.todoRepository.create(todo);
+    const result = this.todoRepository.create(todo);
+    result.created_at = new Date();
 
     return await this.todoRepository.save(result);
   }
 
   async update(id: number, todo: UpdateTodoDto) {
-    const todos = await this.todoRepository.findOneBy({ id });
-    if (!todos) {
+    const todoUpdate = await this.todoRepository.findOneBy({ id });
+    if (!todoUpdate) {
       throw new HttpException(`Todo doesn't exist`, HttpStatus.BAD_REQUEST);
     }
     return await this.todoRepository.update({id}, todo);
@@ -48,7 +50,29 @@ export class TodoService {
     return todo;
   }
 
-  async findAll(): Promise<Todo[]> {
-    return await this.todoRepository.find();
+  async findAll(from?: string, to?: string): Promise<Todo[]> {
+    const userZone = moment.tz.guess(); // Asia/Saigon
+    let data;
+    if(from && to) {
+      data = await this.todoRepository.find({
+        where: {
+          /**
+           * Example: {
+           *  "from": "2023-07-07 11:07",
+           *  "to": "2023-07-07 11:48"
+           * }
+           */
+          created_at: Between(new Date(from), new Date(to))
+        }
+      });
+    } else {
+      data = await this.todoRepository.find();
+    }
+    
+    data.forEach((dat) => {
+      dat.created_at = moment(dat.created_at).tz(userZone).format('YYYY-MM-DD HH:mm ZZ') as any;
+    });
+
+    return data;
   }
 }
