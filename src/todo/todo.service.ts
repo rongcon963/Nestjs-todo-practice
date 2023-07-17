@@ -16,8 +16,11 @@ export class TodoService {
   ) {}
 
   async create(todo: CreateTodoDto) {
-    if(!todo.name) {
-      throw new HttpException('Field name is not empty!', HttpStatus.BAD_REQUEST);
+    if (!todo.name) {
+      throw new HttpException(
+        'Field name is not empty!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const result = this.todoRepository.create(todo);
@@ -31,7 +34,7 @@ export class TodoService {
     if (!todoUpdate) {
       throw new HttpException(`Todo doesn't exist`, HttpStatus.BAD_REQUEST);
     }
-    return await this.todoRepository.update({id}, todo);
+    return await this.todoRepository.update({ id }, todo);
   }
 
   async delete(id: number) {
@@ -39,11 +42,11 @@ export class TodoService {
     if (!todos) {
       throw new HttpException(`Todo doesn't exist`, HttpStatus.BAD_REQUEST);
     }
-    return await this.todoRepository.delete({ id }); 
+    return await this.todoRepository.delete({ id });
   }
 
   async findOne(id: number): Promise<Todo | null> {
-    const todo =  await this.todoRepository.findOneBy({ id });
+    const todo = await this.todoRepository.findOneBy({ id });
     if (!todo) {
       throw new HttpException(`Todo doesn't exist`, HttpStatus.BAD_REQUEST);
     }
@@ -53,7 +56,7 @@ export class TodoService {
   async findAll(from?: string, to?: string): Promise<Todo[]> {
     const userZone = moment.tz.guess(); // Asia/Saigon
     let data;
-    if(from && to) {
+    if (from && to) {
       data = await this.todoRepository.find({
         where: {
           /**
@@ -62,15 +65,17 @@ export class TodoService {
            *  "to": "2023-07-07 11:48"
            * }
            */
-          created_at: Between(new Date(from), new Date(to))
-        }
+          created_at: Between(new Date(from), new Date(to)),
+        },
       });
     } else {
       data = await this.todoRepository.find();
     }
-    
+
     data.forEach((dat) => {
-      dat.created_at = moment(dat.created_at).tz(userZone).format('YYYY-MM-DD HH:mm ZZ') as any;
+      dat.created_at = moment(dat.created_at)
+        .tz(userZone)
+        .format('YYYY-MM-DD HH:mm ZZ') as any;
     });
 
     return data;
