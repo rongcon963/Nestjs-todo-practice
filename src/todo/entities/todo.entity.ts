@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { TodoItem } from './todo-item.entity';
 
 @Entity()
 export class Todo {
@@ -22,4 +24,7 @@ export class Todo {
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updated_at: Date;
+
+  @OneToMany(() => TodoItem, (todoItem) => todoItem.todo)
+  todoItem?: TodoItem[];
 }

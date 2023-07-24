@@ -46,7 +46,10 @@ export class TodoService {
   }
 
   async findOne(id: number): Promise<Todo | null> {
-    const todo = await this.todoRepository.findOneBy({ id });
+    const todo = await this.todoRepository.findOne({
+      where: { id },
+      relations: ['todoItem'],
+    });
     if (!todo) {
       throw new HttpException(`Todo doesn't exist`, HttpStatus.BAD_REQUEST);
     }
@@ -55,22 +58,22 @@ export class TodoService {
 
   async findAll(from?: string, to?: string): Promise<Todo[]> {
     const userZone = moment.tz.guess(); // Asia/Saigon
-    let data;
+    let optionWhere = {};
     if (from && to) {
-      data = await this.todoRepository.find({
-        where: {
-          /**
-           * Example: {
-           *  "from": "2023-07-07 11:07",
-           *  "to": "2023-07-07 11:48"
-           * }
-           */
-          created_at: Between(new Date(from), new Date(to)),
-        },
-      });
-    } else {
-      data = await this.todoRepository.find();
+      optionWhere = {
+        /**
+         * Example: {
+         *  "from": "2023-07-07 11:07",
+         *  "to": "2023-07-07 11:48"
+         * }
+         */
+        created_at: Between(new Date(from), new Date(to)),
+      };
     }
+
+    const data = await this.todoRepository.find({
+      where: optionWhere,
+    });
 
     data.forEach((dat) => {
       dat.created_at = moment(dat.created_at)

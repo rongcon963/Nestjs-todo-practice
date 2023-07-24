@@ -4,7 +4,10 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Todo } from './todo.entity';
 
 @Entity()
 export class TodoItem {
@@ -17,9 +20,16 @@ export class TodoItem {
   @Column({ nullable: true })
   description: string;
 
+  @Column()
+  todo_id: number;
+
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @ManyToOne(() => Todo, (todo) => todo.todoItem)
+  @JoinColumn({ name: 'todo_id' })
+  todo?: Todo;
 }

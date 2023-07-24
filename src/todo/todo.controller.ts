@@ -17,6 +17,19 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 export class TodoController {
   constructor(private todoService: TodoService) {}
 
+  @Get()
+  async findAll(
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ): Promise<Todo[]> {
+    return this.todoService.findAll(from, to);
+  }
+
+  @Get(':id')
+  async findTodoById(@Param('id') id: number): Promise<Todo> {
+    return this.todoService.findOne(id);
+  }
+
   @Post()
   async create(@Body() createTodoDto: CreateTodoDto) {
     return await this.todoService.create(createTodoDto);
@@ -30,18 +43,5 @@ export class TodoController {
   @Delete(':id')
   async delete(@Param('id') id: number) {
     return await this.todoService.delete(id);
-  }
-
-  @Get(':id')
-  async findTodoById(id: number): Promise<Todo> {
-    return this.todoService.findOne(id);
-  }
-
-  @Get()
-  async findAll(
-    @Query('from') from: string,
-    @Query('to') to: string,
-  ): Promise<Todo[]> {
-    return this.todoService.findAll(from, to);
   }
 }
