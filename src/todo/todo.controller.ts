@@ -17,6 +17,11 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 export class TodoController {
   constructor(private todoService: TodoService) {}
 
+  @Post()
+  async create(@Body() createTodoDto: CreateTodoDto) {
+    return await this.todoService.create(createTodoDto);
+  }
+
   @Get()
   async findAll(
     @Query('from') from: string,
@@ -28,11 +33,6 @@ export class TodoController {
   @Get(':id')
   async findTodoById(@Param('id') id: number): Promise<Todo> {
     return this.todoService.findOne(id);
-  }
-
-  @Post()
-  async create(@Body() createTodoDto: CreateTodoDto) {
-    return await this.todoService.create(createTodoDto);
   }
 
   @Put(':id')
